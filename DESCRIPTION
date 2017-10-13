@@ -11,5 +11,9 @@ Encoding: UTF-8
 LazyData: true
 Imports:
   viridis,
-  qgraph
+  qgraph,
+  ape,
+  caper,
+  paleomorph,
+  geomorph
 RoxygenNote: 6.0.1
