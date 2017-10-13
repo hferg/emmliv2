@@ -8,7 +8,7 @@ plotNetwork(rhos, module_names = NULL, linecolour = "#56B4E9",
   title = NULL, layout = NULL)
 }
 \arguments{
-\item{rhos}{The rhos that come out of an EMMLi analysis}
+\item{rhos}{The rhos that come out of an \link[EMMLiv2]{EMMLi} analysis}
 
 \item{module_names}{The names of the modules - if absent generic numbers are used.
 If "rhos" then the nodes are named with the within-module rho.}
@@ -21,7 +21,7 @@ colours corresponding to stronger correlations.}
 \item{title}{Title for the plot.}
 
 \item{layout}{A matrix describing the positions of each module on the canvas.
-See qgraph::qgraph for details.}
+See \link[qgraph]{qgraph} for details.}
 }
 \value{
 A plotted network of the relationships between and within modules.
@@ -32,6 +32,8 @@ sized to within-module rho, and lines are larger and darker according to between
 rho.
 }
 \examples{
-emm <- EMMLi(corr = corr, mods = mods, N_sample = 34)
+data("macacaCorrel")
+data("macacaModels")
+emm <- EMMLi(corr = macacaCorrel, mod = macacaModels, N_sample = 20)
 plotNetwork(emm$rho[[1]], linecolour = "viridis")
 }

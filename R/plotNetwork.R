@@ -5,7 +5,7 @@
 #' sized to within-module rho, and lines are larger and darker according to between-module
 #' rho.
 #' @name plotNetwork
-#' @param rhos The rhos that come out of an EMMLi analysis
+#' @param rhos The rhos that come out of an \link[EMMLiv2]{EMMLi} analysis
 #' @param module_names The names of the modules - if absent generic numbers are used.
 #' If "rhos" then the nodes are named with the within-module rho.
 #' @param linecolour The colour of the joining lines. If a single colour, then lines will
@@ -14,10 +14,12 @@
 #' colours corresponding to stronger correlations.
 #' @param title Title for the plot.
 #' @param layout A matrix describing the positions of each module on the canvas.
-#' See qgraph::qgraph for details.
+#' See \link[qgraph]{qgraph} for details.
 #' @return A plotted network of the relationships between and within modules.
 #' @examples
-#' emm <- EMMLi(corr = corr, mods = mods, N_sample = 34)
+#' data("macacaCorrel")
+#' data("macacaModels")
+#' emm <- EMMLi(corr = macacaCorrel, mod = macacaModels, N_sample = 20)
 #' plotNetwork(emm$rho[[1]], linecolour = "viridis")
 #' @export
 
@@ -87,9 +89,9 @@ plotNetwork <- function(rhos, module_names = NULL, linecolour = "#56B4E9",
 #' Generates network plots for a given number of randomly selected subsampled EMMLi analyses,
 #' as returned by subSampleEmmli.
 #' @name plotRandomSubsamples
-#' @param subsasmples The output of the execution of subSampleEmmli
+#' @param subsasmples The output of the execution of \link[EMMLiv2]{subSampleEMMLi}
 #' @param n The number of random subsamples to plot.
-#' @param ... Additional arguments for plotNetwork (see ?plotNetwork)
+#' @param ... Additional arguments for plotNetwork (see \link[EMMLiv2]{plotNetwork})
 #' @return A gridded plot with a network plot for each of n random subsamples.
 #' @examples
 #' ssemm <- subsampleEmmli(landmarks = landmarks, models = models, fractions = 0.4, min_landmark = 5, nsim = 25)
@@ -102,5 +104,27 @@ plotRandomSubsamples <- function(subsamples, n, ...) {
   for (i in samples) {
     rh <- subsamples$results[[i]]$rhos_best[[1]]
     plotNetwork(rh, ...)
+  }
+}
+
+###########################################################################################
+#' plotMeanNetwork
+#'
+#' Plots the mean network inferred from the rhos returned from a set of subsampled analyses.
+#' @name plotMeanNetwork
+#' @param summary The output of \link[EMMLiv2]{summariseResults}
+#' @param ... Additional arguments for plotNetwork (see \link[EMMLiv2]{plotNetwork})
+#' @export
+
+plotMeanNetwork <- function(summary, ...) {
+  bestRhos <- summary$bestRho
+  n <- length(bestRhos)
+  par(mfrow = n2mfrow(n))
+  mod_names <- names(bestRhos)
+  for (i in seq_along(bestRhos)) {
+    yy <- colMeans(bestRhos[[i]])
+    yy <- yy[1:(length(yy) - 3)]
+    yy <- t(data.frame(MaxL_p = yy))
+    plotNetwork(yy, title = mod_names[i], ...)
   }
 }

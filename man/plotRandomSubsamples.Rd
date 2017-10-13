@@ -9,9 +9,9 @@ plotRandomSubsamples(subsamples, n, ...)
 \arguments{
 \item{n}{The number of random subsamples to plot.}
 
-\item{...}{Additional arguments for plotNetwork (see ?plotNetwork)}
+\item{...}{Additional arguments for plotNetwork (see \link[EMMLiv2]{plotNetwork})}
 
-\item{subsasmples}{The output of the execution of subSampleEmmli}
+\item{subsasmples}{The output of the execution of \link[EMMLiv2]{subSampleEMMLi}}
 }
 \value{
 A gridded plot with a network plot for each of n random subsamples.
