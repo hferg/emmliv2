@@ -77,6 +77,15 @@ phyloEmmli <- function(landmarks, phylo, method = "pgls", EMMLi = FALSE, ...) {
 
   if (method == "pgls") {
     # This bit needs changing for the case where landmarks are 3D.
+
+    # When this is 3D I think I need to rebuild the data to a 2D form - where the
+    # rows are the species names, and the columns are (xyz) per landmark, and then
+    # work the phylogenetic correction over those columns. Otherwise for each species
+    # I have a matrix... OR... well isn't it the same to just go over each combinations
+    # of dimensions for the third, and get all of the data and do it that way?
+    # I think that actually, yes, this is the same... so I just need to change the
+    # way that the function is applied.
+
     lms <- colnames(landmarks)
     landmarks$names <- rownames(landmarks)
     comp_data <- caper::comparative.data(phylo, as.data.frame(landmarks), names = names)
