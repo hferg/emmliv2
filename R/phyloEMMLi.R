@@ -5,12 +5,18 @@
 #' correlation matrix (using dotcorr) and fits EMMLi. Species missing from data or tree are
 #' automatically dropped.
 #' @name phyloEmmli
-#' @param landmarks The landmarks. These can be in a 2D format with species as rownames, and x, y, z as columns, or a 3D array with species names in the 3rd ([,,x]) dimension.
+#' @param landmarks The landmarks. These can be in a 2D format with species as rownames,
+#' and x, y, z as columns, or a 3D array with species names in the 3rd ([,,x]) dimension.
 #' @param phylo A phylogeny describing the relationship between species in landmarks.
-#' @param method Either "pgls" or "ic". If PGLS then corrected data are calculated as the residuals of a phylogenetic least squares regression against 1, if IC then independent contrasts.
-#' @param EMMLi Logical - if TRUE EMMLi is fit and the results returned.
+#' @param method Either "pgls" or "ic". If PGLS then corrected data are calculated as the
+#' residuals of a phylogenetic least squares regression against 1 (\link[caper]{pgls}),
+#' if IC then independent contrasts (\link[ape]{pic}).
+#' @param EMMLi Logical - if TRUE EMMLi is fit and the results returned as well as the
+#' phylogenetically correceted landmarks
 #' @param ... Extra arguments required for EMMLi (at minimum models, and N_sample)
 #' @export
+#' @return A 2D or 3D array (depending on input) containing phylogenetically corrected
+#' landmarks. If EMMLi = TRUE then the results of the EMMLi model are also returned.
 
 phyloEmmli <- function(landmarks, phylo, method = "pgls", EMMLi = FALSE, ...) {
   # first check that the three is a tree.
@@ -26,7 +32,7 @@ phyloEmmli <- function(landmarks, phylo, method = "pgls", EMMLi = FALSE, ...) {
     } else {
       dims <- 3
     }
-  } else if (dim(landmarks) == 2) {
+  } else if (length(dim(landmarks)) == 2) {
     if (is.null(rownames(landmarks))) {
       stop("Landmarks must have species names as rownames.")
     } else {
@@ -76,26 +82,43 @@ phyloEmmli <- function(landmarks, phylo, method = "pgls", EMMLi = FALSE, ...) {
   }
 
   if (method == "pgls") {
-    # This bit needs changing for the case where landmarks are 3D.
-
-    # When this is 3D I think I need to rebuild the data to a 2D form - where the
-    # rows are the species names, and the columns are (xyz) per landmark, and then
-    # work the phylogenetic correction over those columns. Otherwise for each species
-    # I have a matrix... OR... well isn't it the same to just go over each combinations
-    # of dimensions for the third, and get all of the data and do it that way?
-    # I think that actually, yes, this is the same... so I just need to change the
-    # way that the function is applied.
-
-    lms <- colnames(landmarks)
-    landmarks$names <- rownames(landmarks)
-    comp_data <- caper::comparative.data(phylo, as.data.frame(landmarks), names = names)
-    x <- lapply(lms, function(x) caper::pgls(formula(paste(x, "~", 1)), comp_data)$phyres)
-    phy_landmarks <- do.call(cbind, x)
-    rownames(phy_landmarks) <- rownames(landmarks)
+    if (dims == 2) {
+      landmarks <- as.data.frame(landmarks)
+      landmarks$names <- rownames(landmarks)
+      comp_data <- caper::comparative.data(phylo, landmarks, names = names)
+      lms <- head(colnames(landmarks), -1)
+      parallel::makeCluster(parallel::detectCores() - 2)
+      parallel::clusterExport(cl, varlist = c("comp_data"), envir = environment())
+      x <- parallel::parLapply(cl, lms, function(x) caper::pgls(formula(paste(x, "~", 1)), comp_data)$phyres)
+      parallel::stopCluster(cl)
+      phy_landmarks <- do.call(cbind, x)
+      rownames(phy_landmarks) <- rownames(landmarks)
+    } else if (dims == 3) {
+      phy_landmarks <- landmarks
+      for (i in seq_len(dim(landmarks)[2])) {
+        m_lms <- as.data.frame(t(landmarks[,i,]))
+        m_lms$names <- rownames(m_lms)
+        comp_data <- caper::comparative.data(phylo, m_lms, names = names)
+        lms <- head(colnames(m_lms), -1)
+        cl <- parallel::makeCluster(parallel::detectCores() - 2)
+        parallel::clusterExport(cl, varlist = c("comp_data"), envir = environment())
+        x <- parallel::parLapply(cl, lms, function(x) caper::pgls(formula(paste(x, "~", 1)), comp_data)$phyres)
+        parallel::stopCluster(cl)
+        tmp_landmarks <- do.call(cbind, x)
+        rownames(tmp_landmarks) <- rownames(m_lms)
+        phy_landmarks[,i,] <- t(tmp_landmarks)
+      }
+    }
   } else if (method == "ic") {
-    # match the order of the dataset to the order of the tree.
-    landmarks <- landmarks[match(phylo$tip.label, rownames(landmarks)), ]
-    phy_landmarks <- apply(landmarks, 2, function(x) ape::pic(x, phylo))
+    if (dims == 2) {
+      landmarks <- landmarks[match(phylo$tip.label, rownames(landmarks)), ]
+      phy_landmarks <- apply(landmarks, 2, function(x) ape::pic(x, phylo))
+    } else (dims == 3) {
+      phy_landmarks <- landmarks
+      for (i in seq_len(dim(landmarks)[2])) {
+
+      }
+    }
   }
 
   # Fit or don't fit EMMLi.
@@ -103,7 +126,9 @@ phyloEmmli <- function(landmarks, phylo, method = "pgls", EMMLi = FALSE, ...) {
     res <- phy_landmarks
   } else if (EMMLi) {
     # Here, arrayspecs may not be needed if the data is provided in 3D format.
-    arr <- geomorph::arrayspecs(phy_landmarks, ncol(phy_landmarks) / 3, 3)
+    if (dims == 2) {
+      arr <- geomorph::arrayspecs(phy_landmarks, ncol(phy_landmarks) / 3, 3)
+    }
     corr <- paleomorph::dotcorr(arr)
     N_sample <- dim(landmarks)[3]
     emm <- EMMLi(...)

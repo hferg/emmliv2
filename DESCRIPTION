@@ -15,5 +15,8 @@ Imports:
   ape,
   caper,
   paleomorph,
-  geomorph
+  geomorph,
+  tidyverse,
+  multcompView,
+  parallel
 RoxygenNote: 6.0.1
