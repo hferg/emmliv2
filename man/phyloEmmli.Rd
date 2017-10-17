@@ -11,15 +11,23 @@ automatically dropped.}
 phyloEmmli(landmarks, phylo, method = "pgls", EMMLi = FALSE, ...)
 }
 \arguments{
-\item{landmarks}{The landmarks. These can be in a 2D format with species as rownames, and x, y, z as columns, or a 3D array with species names in the 3rd ([,,x]) dimension.}
+\item{landmarks}{The landmarks. These can be in a 2D format with species as rownames,
+and x, y, z as columns, or a 3D array with species names in the 3rd ([,,x]) dimension.}
 
 \item{phylo}{A phylogeny describing the relationship between species in landmarks.}
 
-\item{method}{Either "pgls" or "ic". If PGLS then corrected data are calculated as the residuals of a phylogenetic least squares regression against 1, if IC then independent contrasts.}
+\item{method}{Either "pgls" or "ic". If PGLS then corrected data are calculated as the
+residuals of a phylogenetic least squares regression against 1 (\link[caper]{pgls}),
+if IC then independent contrasts (\link[ape]{pic}).}
 
-\item{EMMLi}{Logical - if TRUE EMMLi is fit and the results returned.}
+\item{EMMLi}{Logical - if TRUE EMMLi is fit and the results returned as well as the
+phylogenetically correceted landmarks}
 
 \item{...}{Extra arguments required for EMMLi (at minimum models, and N_sample)}
+}
+\value{
+A 2D or 3D array (depending on input) containing phylogenetically corrected
+landmarks. If EMMLi = TRUE then the results of the EMMLi model are also returned.
 }
 \description{
 phyloEmmli

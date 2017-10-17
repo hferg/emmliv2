@@ -44,10 +44,11 @@ phyloEmmli <- function(landmarks, phylo, method = "pgls", EMMLi = FALSE, ...) {
 
   # check if mod and N_sample are provided if EMMLi is TRUE.
   if (EMMLi) {
-    if (!exists(mod)) {
+    x <- list(...)
+    if (!"mod" %in% names(x)) {
       stop("mod must be provided to fit EMMLi to phylo landmarks.")
     }
-    if (!exists(N_sample)) {
+    if (!"N_sample" %in% names(x)) {
       stop("N_sample must be provided to fit EMMLi to phylo landmarks.")
     }
   }
@@ -87,7 +88,7 @@ phyloEmmli <- function(landmarks, phylo, method = "pgls", EMMLi = FALSE, ...) {
       landmarks$names <- rownames(landmarks)
       comp_data <- caper::comparative.data(phylo, landmarks, names = names)
       lms <- head(colnames(landmarks), -1)
-      parallel::makeCluster(parallel::detectCores() - 2)
+      cl <- parallel::makeCluster(parallel::detectCores() - 2)
       parallel::clusterExport(cl, varlist = c("comp_data"), envir = environment())
       x <- parallel::parLapply(cl, lms, function(x) caper::pgls(formula(paste(x, "~", 1)), comp_data)$phyres)
       parallel::stopCluster(cl)
@@ -95,28 +96,32 @@ phyloEmmli <- function(landmarks, phylo, method = "pgls", EMMLi = FALSE, ...) {
       rownames(phy_landmarks) <- rownames(landmarks)
     } else if (dims == 3) {
       phy_landmarks <- landmarks
+      cl <- parallel::makeCluster(parallel::detectCores() - 2)
       for (i in seq_len(dim(landmarks)[2])) {
         m_lms <- as.data.frame(t(landmarks[,i,]))
         m_lms$names <- rownames(m_lms)
         comp_data <- caper::comparative.data(phylo, m_lms, names = names)
         lms <- head(colnames(m_lms), -1)
-        cl <- parallel::makeCluster(parallel::detectCores() - 2)
         parallel::clusterExport(cl, varlist = c("comp_data"), envir = environment())
         x <- parallel::parLapply(cl, lms, function(x) caper::pgls(formula(paste(x, "~", 1)), comp_data)$phyres)
-        parallel::stopCluster(cl)
         tmp_landmarks <- do.call(cbind, x)
         rownames(tmp_landmarks) <- rownames(m_lms)
         phy_landmarks[,i,] <- t(tmp_landmarks)
       }
+      parallel::stopCluster(cl)
     }
   } else if (method == "ic") {
     if (dims == 2) {
       landmarks <- landmarks[match(phylo$tip.label, rownames(landmarks)), ]
       phy_landmarks <- apply(landmarks, 2, function(x) ape::pic(x, phylo))
-    } else (dims == 3) {
-      phy_landmarks <- landmarks
+    } else if (dims == 3) {
+      x <- dim(landmarks)
+      phy_landmarks <- array(dim = c(x[1], x[2], x[3] - 1))
+      pic_landmarks <- vector(mode = "list", length = dim(landmarks)[2])
       for (i in seq_len(dim(landmarks)[2])) {
-
+        m_lms <- landmarks[,i,]
+        m_lms <- m_lms[ , match(phylo$tip.label, colnames(m_lms))]
+        phy_landmarks[,i,] <- t(apply(m_lms, 1, function(x) ape::pic(x, phylo)))
       }
     }
   }
@@ -129,9 +134,10 @@ phyloEmmli <- function(landmarks, phylo, method = "pgls", EMMLi = FALSE, ...) {
     if (dims == 2) {
       arr <- geomorph::arrayspecs(phy_landmarks, ncol(phy_landmarks) / 3, 3)
     }
+    print("Computing correlation matrix...")
     corr <- paleomorph::dotcorr(arr)
     N_sample <- dim(landmarks)[3]
-    emm <- EMMLi(...)
+    emm <- EMMLi(corr = corr, ...)
     res <- list(EMMLi = emm, phy_landmarks = phy_landmarks)
   }
 
