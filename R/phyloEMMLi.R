@@ -133,6 +133,8 @@ phyloEmmli <- function(landmarks, phylo, method = "pgls", EMMLi = FALSE, ...) {
     # Here, arrayspecs may not be needed if the data is provided in 3D format.
     if (dims == 2) {
       arr <- geomorph::arrayspecs(phy_landmarks, ncol(phy_landmarks) / 3, 3)
+    } else if (dims == 3) {
+      arr <- landmarks
     }
     print("Computing correlation matrix...")
     corr <- paleomorph::dotcorr(arr)
