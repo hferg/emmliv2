@@ -13,7 +13,7 @@
 #' @param corr The original correlation matrix used in the EMMLi analysis that generated
 #' the input.
 #' @return The correlations within and between modules of the best model.
-#' @keywords internal
+#' @export
 
 getCorrs <- function(emm, models, corr) {
   best_mod <- rownames(emm$results)[which(emm$res[ , "dAICc"] == 0)]

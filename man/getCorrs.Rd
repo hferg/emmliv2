@@ -25,4 +25,3 @@ This function takes a fitted EMMLi model and the models used to fit it, and then
 all the correaltions for the best fitting model. This is recycled from the main EMMLi
 function - Possible that this will change with the refactoring of EMMLi.
 }
-\keyword{internal}
