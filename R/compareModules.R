@@ -12,7 +12,8 @@
 #' is calculated with \link[paleomorph]{dotcorr}
 #' @param model Either a vector of numbers describing a model of modules, or a 2 column dataframe
 #' with the first bein landmark names and the second being the module definitions.
-#' @param test_modules A vector of two module numbers to compare.
+#' @param test_modules A vector of two module numbers to compare, or if the modules are named, the names
+#' of those two modules.
 #' @param plot Logical - if TRUE the plot is drawn.
 #' @return A list with two elements - the first is the result of an ANOVA compaing the mean
 #' correlations within- and between-modules, and the second is the results of a TukeyHSD test on
@@ -67,7 +68,7 @@ compareModules <- function(corr, model, test_modules, plot = TRUE) {
   betweenFloat = list()
   for(i in seq(length(w))){
     fg <- modNF[modNF[, 2] == w[i], ]
-    l <- corr[fg[, 1], fg[, 1]]
+    l <- corr[as.numeric(fg[, 1]), as.numeric(fg[, 1])]
     modules[[i]] <- (as.array(l[!is.na(l)]))
   }
 

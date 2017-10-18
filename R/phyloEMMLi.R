@@ -19,13 +19,10 @@
 #' landmarks. If EMMLi = TRUE then the results of the EMMLi model are also returned.
 
 phyloEmmli <- function(landmarks, phylo, method = "pgls", EMMLi = FALSE, ...) {
-  # first check that the three is a tree.
-
   if (class(phylo) != "phylo") {
     stop("Tree must be an object of class 'phylo'.")
   }
 
-  # now check that the data has rownames that are the species.
   if(length(dim(landmarks)) == 3) {
     if (is.null(dimnames(landmarks)[[3]])) {
       stop("Landmarks must have species names in the 3rd dimension.")
@@ -42,7 +39,6 @@ phyloEmmli <- function(landmarks, phylo, method = "pgls", EMMLi = FALSE, ...) {
     stop("Landmarks must be either a 2D or 3D array.")
   }
 
-  # check if mod and N_sample are provided if EMMLi is TRUE.
   if (EMMLi) {
     x <- list(...)
     if (!"mod" %in% names(x)) {
@@ -53,8 +49,6 @@ phyloEmmli <- function(landmarks, phylo, method = "pgls", EMMLi = FALSE, ...) {
     }
   }
 
-  # now check that the species on the tree match the species - here is where to check what format
-  # the input is in, and check that species names are there.
   if (dims == 3) {
     sp_lm <- dimnames(landmarks)[[3]]
   } else if (dims == 2) {
@@ -130,7 +124,6 @@ phyloEmmli <- function(landmarks, phylo, method = "pgls", EMMLi = FALSE, ...) {
   if (!EMMLi) {
     res <- phy_landmarks
   } else if (EMMLi) {
-    # Here, arrayspecs may not be needed if the data is provided in 3D format.
     if (dims == 2) {
       arr <- geomorph::arrayspecs(phy_landmarks, ncol(phy_landmarks) / 3, 3)
     } else if (dims == 3) {
