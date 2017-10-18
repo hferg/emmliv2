@@ -68,12 +68,12 @@ getRhos <- function(rs) {
 #'
 #' Summarises the output of subsampleEMMLi to allow easier comparison between multiple
 #' subsampled analyses
-#' @name summariseResults
+#' @name subsampleSummary
 #' @param subsamples The output of subsampleEMMLi
 #' @return
 #' @export
 
-summariseResults <- function(subsamples) {
+subsampleSummary <- function(subsamples) {
   bestMods <- getBestMods(subsamples)
   bestRhos <- getRhos(subsamples)
   return(list(bestModels = bestMods, bestRho = bestRhos))
