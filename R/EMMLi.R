@@ -70,7 +70,20 @@ checkInput <- function(corr, mod, N_sample, abs, pprob, saveAs) {
 #' @param corr_list internal variable from EMMLi
 #' @keywords internal
 
-getModules <- function(varlist, symmet, corr, mod, corr_list) {
+getModules <- function(corr, mod) {
+  # Create varlist variable
+  varlist = paste0('mod$', names(mod)[-1])
+
+  # make the upper triangle of corr NA, we only use the lower triangle.
+  corr[upper.tri(corr, diag = T)] = NA
+
+  # array of coefficient matrix, NAs are removed.
+  corr_list = (as.array(corr[!is.na(corr)]))
+  symmet = corr
+
+  # a symmetric matrix formed from the coefficient matrix, only used to find intermodular coefficients.
+  symmet[upper.tri(symmet)] = t(symmet)[upper.tri(symmet)]
+
   all_modules = list()
   for(colnam in varlist){
     col = array(eval(parse(text = colnam)))
@@ -85,7 +98,7 @@ getModules <- function(varlist, symmet, corr, mod, corr_list) {
       fg = modNF[modNF[, 2] == w[i], ]
 
       # coefficients between identified landmarks.
-      l = corr[fg[, 1], fg[, 1]]
+      l <- corr[as.numeric(fg[, 1]), as.numeric(fg[, 1])]
       modules[[i]] = (as.array(l[!is.na(l)]))
     }
     names(modules) = paste("Module", w)
@@ -377,21 +390,8 @@ EMMLi <- function(corr, N_sample, mod, saveAs = NULL, abs = TRUE, pprob = 0.05,
   # Create null model
   mod$No.modules = 1
 
-  # Create varlist variable
-  varlist = paste0('mod$', names(mod)[-1])
-
-  # make the upper triangle of corr NA, we only use the lower triangle.
-  corr[upper.tri(corr, diag = T)] = NA
-
-  # array of coefficient matrix, NAs are removed.
-  corr_list = (as.array(corr[!is.na(corr)]))
-  symmet = corr
-
-  # a symmetric matrix formed from the coefficient matrix, only used to find intermodular coefficients.
-  symmet[upper.tri(symmet)] = t(symmet)[upper.tri(symmet)]
-
   # get correlation matrices for each modules.
-  all_modules <- getModules(varlist, symmet, corr, mod, corr_list)
+  all_modules <- getModules(corr, mod)
 
   # maxlogL will have the log likelihood for each module.
   liks <- moduleLikelihoods(all_modules, abs, N_sample, correction = correction)

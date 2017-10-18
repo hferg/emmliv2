@@ -4,16 +4,16 @@
 \alias{getModules}
 \title{getModules}
 \usage{
-getModules(varlist, symmet, corr, mod, corr_list)
+getModules(corr, mod)
 }
 \arguments{
-\item{varlist}{internal variable from EMMLi}
-
-\item{symmet}{internal variable from EMMLi}
-
 \item{corr}{correlation matrix}
 
 \item{mod}{Landmark classifications}
+
+\item{varlist}{internal variable from EMMLi}
+
+\item{symmet}{internal variable from EMMLi}
 
 \item{corr_list}{internal variable from EMMLi}
 }

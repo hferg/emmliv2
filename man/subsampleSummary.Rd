@@ -9,6 +9,15 @@ subsampleSummary(subsamples)
 \arguments{
 \item{subsamples}{The output of subsampleEMMLi}
 }
+\value{
+A list of two elements. The first of these is a matrix detailing the best-fitting
+model(s) from each subsample, containing the model name, maximum likelihood, number of
+parameters, number of landmarks, AICc, dAICc, posterior probabiliry, requested subsample
+level and true subsample level. The second element is a list of n elements, where n is
+the number of different models that emerged as the best fitting. Each of these elements
+contains a matrix detailing the maximum likihood value of rho for all within- and
+between-module correlations (columns) for each EMMLi analysis (rows).
+}
 \description{
 Summarises the output of subsampleEMMLi to allow easier comparison between multiple
 subsampled analyses

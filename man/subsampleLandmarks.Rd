@@ -7,7 +7,7 @@
 subsampleLandmarks(landmarks, fraction, models, min_landmark)
 }
 \arguments{
-\item{landmarks}{A 2D array of xyz landmarks to subsample from. Will be turned into a correlation
+\item{landmarks}{A 3D array of xyz landmarks to subsample from. Will be turned into a correlation
 matrix using \link[paleopmorph]{dotcorr} for EMMLi analysis after subsampling.}
 
 \item{fraction}{The decimal fraction to subsample down to. e.g. 0.2 will return 20% of the

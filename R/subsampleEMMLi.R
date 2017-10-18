@@ -39,7 +39,7 @@ getCorrs <- function(emm, models, corr) {
     fg <- modNF[modNF[, 2] == w[i], ]
 
     # coefficients between identified landmarks.
-    l <- corr[fg[, 1], fg[, 1]]
+    l <- corr[as.numeric(fg[, 1]), as.numeric(fg[, 1])]
     modules[[i]] <- (as.array(l[!is.na(l)]))
   }
   names(modules) <- paste("Module", w)
@@ -73,7 +73,7 @@ getCorrs <- function(emm, models, corr) {
 #' models object to match the newly subsampled landmark data. Internal, called by
 #' subsampleEMMLi.
 #' @name subsampleLandmarks
-#' @param landmarks A 2D array of xyz landmarks to subsample from. Will be turned into a correlation
+#' @param landmarks A 3D array of xyz landmarks to subsample from. Will be turned into a correlation
 #' matrix using \link[paleopmorph]{dotcorr} for EMMLi analysis after subsampling.
 #' @param fraction The decimal fraction to subsample down to. e.g. 0.2 will return 20% of the
 #' original landmarks.
@@ -126,7 +126,7 @@ subsampleLandmarks <- function(landmarks, fraction, models, min_landmark) {
 
   true_subsample = round(dim(res)[1] / dim(landmarks)[1], 2)
   if (true_subsample > fraction) {
-    warning(paste("Actual subsample is ", true_subsample))
+    print(paste("+++ WARNING: Actual subsample is ", true_subsample, "+++"))
   }
 
   new_models <- models[kps, ]
@@ -198,7 +198,6 @@ subsampleEMMLi <- function(landmarks, fractions, models, min_landmark, aic_cut =
   }
 
   fitEmmli <- function(landmarks, models, fraction, min_landmark, aic_cut) {
-
     dat <- subsampleLandmarks(landmarks = landmarks, fraction = fraction, models = models,
                               min_landmark = min_landmark)
     c <- paleomorph::dotcorr(dat$landmarks)
