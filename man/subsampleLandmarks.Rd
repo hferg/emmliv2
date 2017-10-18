@@ -7,13 +7,23 @@
 subsampleLandmarks(landmarks, fraction, models, min_landmark)
 }
 \arguments{
-\item{landmarks}{A 2D dataframe of landmarks}
+\item{landmarks}{A 2D array of xyz landmarks to subsample from. Will be turned into a correlation
+matrix using \link[paleopmorph]{dotcorr} for EMMLi analysis after subsampling.}
 
-\item{fraction}{The decimal fraction to subsample down to. e.g. 0.2 will return 20% of the original landmarks.}
+\item{fraction}{The decimal fraction to subsample down to. e.g. 0.2 will return 20% of the
+original landmarks.}
 
-\item{models}{The models for the landmarks}
+\item{models}{A data frame defining the models. The first column should contain the landmark names
+as factor or character. Subsequent columns should define which landmarks are contained within each
+module with integers, factors or characters. If a landmark should be ignored for a specific model
+(i.e., it is unintegrated in any module), the element should be NA.}
 
-\item{min_landmarks}{The minimum number of landmarks for a module in any model. When subsampling goes below this threshold landmarks are randomly seleclted from the original data and added back in in order to make up to min_landmarks. This means that sometimes the exact fraction desired is not returned.}
+\item{min_landmark}{The minimum number of landmarks to subsample to. This ensures that a module isn't
+totally removed during random subsampling. When subsampling causes a landmark to be removed or to be
+subsampled below this threshold landmarks are drawn from the original module at random and added back in.
+This means that sometimes (especially with low subsampling fractions and/or the presence of small
+modules in a model) the actual subsampling level is higher than the requested subsampling. In these
+cases a warning is printed to the screen.}
 }
 \description{
 This function randomly removes landmarks from a dataset, and adjusts the corresponding
