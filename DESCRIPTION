@@ -18,5 +18,6 @@ Imports:
   geomorph,
   tidyverse,
   multcompView,
-  parallel
+  parallel,
+  pbapply
 RoxygenNote: 6.0.1

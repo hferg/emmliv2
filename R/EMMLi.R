@@ -372,7 +372,6 @@ EMMLi <- function(corr, N_sample, mod, saveAs = NULL, abs = TRUE, pprob = 0.05,
   #     CHECK INPUTS                     #
   #                                      #
   ########################################
-  print("Checking input...")
   checkInput(corr, mod, N_sample, abs, pprob, saveAs)
 
   # Create null model
@@ -392,11 +391,9 @@ EMMLi <- function(corr, N_sample, mod, saveAs = NULL, abs = TRUE, pprob = 0.05,
   symmet[upper.tri(symmet)] = t(symmet)[upper.tri(symmet)]
 
   # get correlation matrices for each modules.
-  print("Extracting modules...")
   all_modules <- getModules(varlist, symmet, corr, mod, corr_list)
 
   # maxlogL will have the log likelihood for each module.
-  print("Computing module likelihoods...")
   liks <- moduleLikelihoods(all_modules, abs, N_sample, correction = correction)
   maxlogL <- liks$maxlogL
 

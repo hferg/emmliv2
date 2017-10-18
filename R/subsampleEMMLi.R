@@ -229,7 +229,7 @@ subsampleEMMLi <- function(landmarks, fractions, models, min_landmark, aic_cut =
     return(res)
   }
 
-  res <- lapply(fractions, function(x) fitEmmli(fraction = x, landmarks = landmarks,
+  res <- pbapply::pblapply(fractions, function(x) fitEmmli(fraction = x, landmarks = landmarks,
             models = models, min_landmark = min_landmark, aic_cut = aic_cut))
 
   names(res) <- fractions
