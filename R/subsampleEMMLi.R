@@ -68,7 +68,7 @@ subsampleLandmarks <- function(landmarks, fraction, models, min_landmark) {
 
 
 ###########################################################################################
-#' subSampleEMMLi
+#' subsampleEMMLi
 #'
 #' Analyse random subsamples of a dataset repeatedly using EMMLi. This function subsamples
 #' a 2D array of landmarks to a given fraction of it's original size and then fits EMMLi
@@ -81,7 +81,7 @@ subsampleLandmarks <- function(landmarks, fraction, models, min_landmark) {
 #' will subsample the data to the given fraction nrep times. Alternatively, if a range of
 #' fractions is given (in a vector) the nrep argument is not required, and the function will
 #' subsample the data and fit EMMLi once for each fraction in the given fractions vector.
-#' @name subSampleEmmli
+#' @name subsampleEMMLi
 #' @param landmarks A 2D array of xyz landmarks to subsample from. Will be turned into a correlation
 #' matrix using \link[paleopmorph]{dotcorr} for EMMLi analysis after subsampling.
 #' @param fractions Either a single subsampling fraction (in which case nrep is required) or a
@@ -113,7 +113,7 @@ subsampleLandmarks <- function(landmarks, fraction, models, min_landmark) {
 #'   - (optional) the correlation matrix of the best model(s).
 #' @export
 
-subSampleEMMLi <- function(landmarks, fractions, models, min_landmark, aic_cut = 7,
+subsampleEMMLi <- function(landmarks, fractions, models, min_landmark, aic_cut = 7,
                            return_corr = FALSE, nrep = NULL) {
 
   if (!is.null(nrep)) {
