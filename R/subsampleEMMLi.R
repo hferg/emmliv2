@@ -1,4 +1,72 @@
 ###########################################################################################
+#' getCorrs
+#'
+#' This function takes a fitted EMMLi model and the models used to fit it, and then returns
+#' all the correaltions for the best fitting model. This is recycled from the main EMMLi
+#' function - Possible that this will change with the refactoring of EMMLi.
+#' @name getCorrs
+#' @param emm A fitted EMMLi model (output of EMMLi).
+#' @param models A data frame defining the models. The first column should contain the landmark names
+#' as factor or character. Subsequent columns should define which landmarks are contained within each
+#' module with integers, factors or characters. If a landmark should be ignored for a specific model
+#' (i.e., it is unintegrated in any module), the element should be NA.
+#' @param corr The original correlation matrix used in the EMMLi analysis that generated
+#' the input.
+#' @return The correlations within and between modules of the best model.
+#' @keywords internal
+
+getCorrs <- function(emm, models, corr) {
+  best_mod <- rownames(emm$results)[which(emm$res[ , "dAICc"] == 0)]
+  best_mod <- strsplit(best_mod, " ")[[1]][1]
+  best_mod <- paste(head(strsplit(best_mod, "\\.")[[1]], n = -2), collapse = ".")
+
+  symmet = corr
+  symmet[upper.tri(symmet)] = t(symmet)[upper.tri(symmet)]
+
+  model <- paste0("models$", best_mod)
+  lms <- array(eval(parse(text = model)))
+  modNF <- stats::na.omit(cbind(1:nrow(models), lms))
+  w <- unique(modNF[, 2])
+
+  all_modules <- list()
+  modules <- list()
+  btw_mod = list()
+  betweenModules = list()
+  withinModules = list()
+
+  for(i in seq(length(w))){
+    # identify landmarks within a class
+    fg <- modNF[modNF[, 2] == w[i], ]
+
+    # coefficients between identified landmarks.
+    l <- corr[fg[, 1], fg[, 1]]
+    modules[[i]] <- (as.array(l[!is.na(l)]))
+  }
+  names(modules) <- paste("Module", w)
+
+  if (length(w) > 1) {
+    # make combinations of modules for between module.
+    cb <- utils::combn(w, 2)
+    for (i in seq(dim(cb)[2])){
+      fg1 <- modNF[modNF[, 2] == cb[1, i], ]
+      fg2 <- modNF[modNF[, 2] == cb[2, i], ]
+
+      # setdiff(A,B) - present in A but not in B
+      btw <- symmet[as.integer(setdiff(fg2[, 1], fg1[, 1])), as.integer(setdiff(fg1[, 1], fg2[, 1]))]
+      btw_mod[[i]] <- btw[!is.na(btw)]
+    }
+    names(btw_mod) <- paste(cb[1, ], "to", cb[2, ])
+    betweenModules['betweenModules'] = list(as.vector(rle(unlist(btw_mod))$values))
+    withinModules['withinModules'] = list(as.vector(rle(unlist(modules))$values))
+  }
+
+  all_modules[[model]] = c(modules, btw_mod, withinModules, betweenModules)
+
+  return(all_modules)
+}
+
+
+###########################################################################################
 #' subsampleLandmarks
 #'
 #' This function randomly removes landmarks from a dataset, and adjusts the corresponding
@@ -19,7 +87,6 @@
 #' This means that sometimes (especially with low subsampling fractions and/or the presence of small
 #' modules in a model) the actual subsampling level is higher than the requested subsampling. In these
 #' cases a warning is printed to the screen.
-#' @export
 #' @keywords internal
 
 subsampleLandmarks <- function(landmarks, fraction, models, min_landmark) {
@@ -86,7 +153,7 @@ subsampleLandmarks <- function(landmarks, fraction, models, min_landmark) {
 #' matrix using \link[paleopmorph]{dotcorr} for EMMLi analysis after subsampling.
 #' @param fractions Either a single subsampling fraction (in which case nrep is required) or a
 #' vector of fractions. Specified in decimal format, i.e. a fraction of 0.2 will subsample down
-#' to 20% of the original number of landmarks.
+#' to 20\% of the original number of landmarks.
 #' @param models A data frame defining the models. The first column should contain the landmark names
 #' as factor or character. Subsequent columns should define which landmarks are contained within each
 #' module with integers, factors or characters. If a landmark should be ignored for a specific model
@@ -98,22 +165,29 @@ subsampleLandmarks <- function(landmarks, fraction, models, min_landmark) {
 #' modules in a model) the actual subsampling level is higher than the requested subsampling. In these
 #' cases a warning is printed to the screen.
 #' @param aic_cut This is the threshold of dAICc below which two models are considered to be not different.
-#' When this occurs multiple models are be returned as the best.
+#' When this occurs multiple models are be returned as the best. Defaults to 0 (i.e., only the best
+#' fitting model is returned, regardless of how close other models are.)
 #' @param return_corr Logical - if TRUE then the full correlations of within and between modules are
-#' returned for the best model(s) in addition to the EMMLi results. Defaults to FALSE.
+#' returned for the single best model in addition to the EMMLi results. Defaults to FALSE.
 #' @param nrep If a single subsampling fraction, this is the number of times that subsampling fraction
 #' is repeated.
 #' @return A list of n elements, where n is either the number of subsampling fractions, or nrep. Each
 #' element contains the output of an EMMLi analysis on the subasampled data, consisting of four or five
 #' elements:
+#'
 #'   - the best model(s) description
+#'
 #'   - the rho list(s) for the best model(s)
+#'
 #'   - the data used in the EMMLi analysis (two elements - the subsampled data, and the corresponding models)
+#'
 #'   - the true level of subsampling
-#'   - (optional) the correlation matrix of the best model(s).
+#'
+#'   - (optional) the correlation matrix of the single best model.
+#'
 #' @export
 
-subsampleEMMLi <- function(landmarks, fractions, models, min_landmark, aic_cut = 7,
+subsampleEMMLi <- function(landmarks, fractions, models, min_landmark, aic_cut = 0,
                            return_corr = FALSE, nrep = NULL) {
 
   if (!is.null(nrep)) {

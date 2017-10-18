@@ -4,7 +4,7 @@
 \alias{subsampleEMMLi}
 \title{subsampleEMMLi}
 \usage{
-subsampleEMMLi(landmarks, fractions, models, min_landmark, aic_cut = 7,
+subsampleEMMLi(landmarks, fractions, models, min_landmark, aic_cut = 0,
   return_corr = FALSE, nrep = NULL)
 }
 \arguments{
@@ -13,7 +13,7 @@ matrix using \link[paleopmorph]{dotcorr} for EMMLi analysis after subsampling.}
 
 \item{fractions}{Either a single subsampling fraction (in which case nrep is required) or a
 vector of fractions. Specified in decimal format, i.e. a fraction of 0.2 will subsample down
-to 20% of the original number of landmarks.}
+to 20\% of the original number of landmarks.}
 
 \item{models}{A data frame defining the models. The first column should contain the landmark names
 as factor or character. Subsequent columns should define which landmarks are contained within each
@@ -28,10 +28,11 @@ modules in a model) the actual subsampling level is higher than the requested su
 cases a warning is printed to the screen.}
 
 \item{aic_cut}{This is the threshold of dAICc below which two models are considered to be not different.
-When this occurs multiple models are be returned as the best.}
+When this occurs multiple models are be returned as the best. Defaults to 0 (i.e., only the best
+fitting model is returned, regardless of how close other models are.)}
 
 \item{return_corr}{Logical - if TRUE then the full correlations of within and between modules are
-returned for the best model(s) in addition to the EMMLi results. Defaults to FALSE.}
+returned for the single best model in addition to the EMMLi results. Defaults to FALSE.}
 
 \item{nrep}{If a single subsampling fraction, this is the number of times that subsampling fraction
 is repeated.}
@@ -40,11 +41,16 @@ is repeated.}
 A list of n elements, where n is either the number of subsampling fractions, or nrep. Each
 element contains the output of an EMMLi analysis on the subasampled data, consisting of four or five
 elements:
+
   - the best model(s) description
+
   - the rho list(s) for the best model(s)
+
   - the data used in the EMMLi analysis (two elements - the subsampled data, and the corresponding models)
+
   - the true level of subsampling
-  - (optional) the correlation matrix of the best model(s).
+
+  - (optional) the correlation matrix of the single best model.
 }
 \description{
 Analyse random subsamples of a dataset repeatedly using EMMLi. This function subsamples
