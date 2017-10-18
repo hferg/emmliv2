@@ -13,7 +13,8 @@ is calculated with \link[paleomorph]{dotcorr}}
 \item{model}{Either a vector of numbers describing a model of modules, or a 2 column dataframe
 with the first bein landmark names and the second being the module definitions.}
 
-\item{test_modules}{A vector of two module numbers to compare.}
+\item{test_modules}{A vector of two module numbers to compare, or if the modules are named, the names
+of those two modules.}
 
 \item{plot}{Logical - if TRUE the plot is drawn.}
 }

@@ -1,5 +1,6 @@
 ###########################################################################################
 #' phyloEmmli
+#'
 #' Takes landmarks and a phylogeny and then corrects the landmarks for the phylogeny according
 #' to one of two methods, and then either returns the corrected landmarks, or calculates the
 #' correlation matrix (using dotcorr) and fits EMMLi. Species missing from data or tree are
@@ -16,7 +17,9 @@
 #' @param ... Extra arguments required for EMMLi (at minimum models, and N_sample)
 #' @export
 #' @return A 2D or 3D array (depending on input) containing phylogenetically corrected
-#' landmarks. If EMMLi = TRUE then the results of the EMMLi model are also returned.
+#' landmarks. If EMMLi = TRUE then the results of the EMMLi model are also returned along
+#' with the phylogenetically corrected data in a two element list (data first element,
+#' EMMLi output second element).
 
 phyloEmmli <- function(landmarks, phylo, method = "pgls", EMMLi = FALSE, ...) {
   if (class(phylo) != "phylo") {

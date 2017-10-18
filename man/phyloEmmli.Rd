@@ -2,11 +2,7 @@
 % Please edit documentation in R/phyloEMMLi.R
 \name{phyloEmmli}
 \alias{phyloEmmli}
-\title{phyloEmmli
-Takes landmarks and a phylogeny and then corrects the landmarks for the phylogeny according
-to one of two methods, and then either returns the corrected landmarks, or calculates the
-correlation matrix (using dotcorr) and fits EMMLi. Species missing from data or tree are
-automatically dropped.}
+\title{phyloEmmli}
 \usage{
 phyloEmmli(landmarks, phylo, method = "pgls", EMMLi = FALSE, ...)
 }
@@ -27,10 +23,11 @@ phylogenetically correceted landmarks}
 }
 \value{
 A 2D or 3D array (depending on input) containing phylogenetically corrected
-landmarks. If EMMLi = TRUE then the results of the EMMLi model are also returned.
+landmarks. If EMMLi = TRUE then the results of the EMMLi model are also returned along
+with the phylogenetically corrected data in a two element list (data first element,
+EMMLi output second element).
 }
 \description{
-phyloEmmli
 Takes landmarks and a phylogeny and then corrects the landmarks for the phylogeny according
 to one of two methods, and then either returns the corrected landmarks, or calculates the
 correlation matrix (using dotcorr) and fits EMMLi. Species missing from data or tree are
