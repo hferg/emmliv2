@@ -1,19 +1,15 @@
 ###########################################################################################
-#' simplifyEMMLi
-#' Attempts to simplify a fitted EMMLi model, looking for a simpler model that fits the
-#' data better by merging modules. Pairs of modules are identified as candidates for merging
-#' if their between-module rho is higher than either of the within-module rhos by more than
-#' 2 * SD of the modules combined. This repeats until the model does not change or improve.
-#' Alternatively, pairs of modules can be offered as candidates for merging - in this
-#' instance there is not exploration and just the suggested pairs are tested. Pairs are
-#' offered as a list, where each element is a vector of two module numbers.
+#' identifyCandidates
+#'
+#' Identifies candidates for merging in simplifyEMMLi. Candidates are selected if their
+#' between-module rho is larger than either of their within-module rhos by a factor of
+#' 2*sd of the combined within-module correlations of the landmarks in the modules when
+#' pooled.
 #' @name simplifyEMMLi
 #' @param fitted_emmli Fitted EMMLi model output.
 #' @param corr_matrix The correlation matrix that EMMLi was fitted to.
 #' @param models The original models that EMMLi tested.
-#' @param candidates A list of pairs of modules to test merging (each element is a vector of length 2 with module numbers).
-#' @param N_sample The sample size for the original EMMLi fit.
-#' @param correction if "normal" uses the normal EMMLi calculation for K, if "new" then uses the experimental adjustment to AICc (adding nmodules - 1 to K)
+#' @keywords internal
 
 identifyCandidates <- function(fitted_emmli, corr_matrix, models) {
   fit_mods <- fitted_emmli$results
@@ -29,7 +25,7 @@ identifyCandidates <- function(fitted_emmli, corr_matrix, models) {
   all_corrs <- getCorrs(fitted_emmli, models, corr_matrix)[[1]]
   between_rhos <- between_rhos[,order(between_rhos[2,], decreasing = TRUE)]
 
-  # Select pairs that have a between rho greater than either of the withings by
+  # Select pairs that have a between rho greater than either of the withins by
   # a factor of 2*SD of the combined within-correlations of both modules pooled.
 
   pairs <- colnames(between_rhos)
@@ -56,10 +52,29 @@ identifyCandidates <- function(fitted_emmli, corr_matrix, models) {
   return(list(candidates = candidates, start_mod = start_mod))
 }
 
+###########################################################################################
+#' simplifyEMMLi
+#'
+#' Attempts to simplify a fitted EMMLi model, looking for a simpler model that fits the
+#' data better by merging modules. Pairs of modules are identified as candidates for merging
+#' if their between-module rho is higher than either of the within-module rhos by more than
+#' 2 * SD of the modules combined. This repeats until the model does not change or improve.
+#' Alternatively, pairs of modules can be offered as candidates for merging - in this
+#' instance there is not exploration and just the suggested pairs are tested. Pairs are
+#' offered as a list, where each element is a vector of two module numbers.
+#' @name simplifyEMMLi
+#' @param fitted_emmli Fitted EMMLi model output.
+#' @param corr_matrix The correlation matrix that EMMLi was fitted to.
+#' @param models The original models that EMMLi tested.
+#' @param candidates A list of pairs of modules to test merging (each element is a vector of
+#' length 2 with module numbers).
+#' @param N_sample The sample size for the original EMMLi fit.
+#' @param correction if "normal" uses the normal EMMLi calculation for K, if "new" then uses
+#' the experimental adjustment to AICc (adding nmodules - 1 to K). Not reccommended.
+#' @export
+
 simplifyEMMLi <- function(fitted_emmli, corr_matrix, models, candidates = NULL,
                           correction = "normal", N_sample) {
-  # First of all look at the best-fitting EMMLi model, and find pairs
-  # of modules that have similar between to within module correlations.
 
   if (is.null(candidates)) {
     x <- identifyCandidates(fitted_emmli, corr_matrix, models)
@@ -77,7 +92,6 @@ simplifyEMMLi <- function(fitted_emmli, corr_matrix, models, candidates = NULL,
   }
 
   repeat {
-    # If there are no candidates, break the loop - means the model doesn't simplify any further
     if (length(candidates) == 0) {
       break
     }
