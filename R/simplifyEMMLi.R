@@ -55,10 +55,12 @@ identifyCandidates <- function(fitted_emmli, corr_matrix, models) {
 ###########################################################################################
 #' simplifyEMMLi
 #'
-#' Attempts to simplify a fitted EMMLi model, looking for a simpler model that fits the
-#' data better by merging modules. Pairs of modules are identified as candidates for merging
-#' if their between-module rho is higher than either of the within-module rhos by more than
-#' 2 * SD of the modules combined. This repeats until the model does not change or improve.
+#' Experimental function - use with caution. Attempts to simplify a fitted EMMLi model,
+#' looking for a simpler model that fits the data better by merging modules. Pairs of
+#' modules are identified as candidates for merging if their between-module rho is higher
+#' than either of the within-module rhos by more than 2 * SD of the modules combined. This
+#' repeats until the model does not change or improve.
+#'
 #' Alternatively, pairs of modules can be offered as candidates for merging - in this
 #' instance there is not exploration and just the suggested pairs are tested. Pairs are
 #' offered as a list, where each element is a vector of two module numbers.

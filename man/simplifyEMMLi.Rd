@@ -2,8 +2,12 @@
 % Please edit documentation in R/simplifyEMMLi.R
 \name{simplifyEMMLi}
 \alias{simplifyEMMLi}
-\title{simplifyEMMLi}
+\alias{identifyCandidates}
+\alias{simplifyEMMLi}
+\title{identifyCandidates}
 \usage{
+identifyCandidates(fitted_emmli, corr_matrix, models)
+
 simplifyEMMLi(fitted_emmli, corr_matrix, models, candidates = NULL,
   correction = "normal", N_sample)
 }
@@ -21,13 +25,28 @@ length 2 with module numbers).}
 the experimental adjustment to AICc (adding nmodules - 1 to K). Not reccommended.}
 
 \item{N_sample}{The sample size for the original EMMLi fit.}
+
+\item{fitted_emmli}{Fitted EMMLi model output.}
+
+\item{corr_matrix}{The correlation matrix that EMMLi was fitted to.}
+
+\item{models}{The original models that EMMLi tested.}
 }
 \description{
-Attempts to simplify a fitted EMMLi model, looking for a simpler model that fits the
-data better by merging modules. Pairs of modules are identified as candidates for merging
-if their between-module rho is higher than either of the within-module rhos by more than
-2 * SD of the modules combined. This repeats until the model does not change or improve.
+Identifies candidates for merging in simplifyEMMLi. Candidates are selected if their
+between-module rho is larger than either of their within-module rhos by a factor of
+2*sd of the combined within-module correlations of the landmarks in the modules when
+pooled.
+
+Experimental function - use with caution. Attempts to simplify a fitted EMMLi model,
+looking for a simpler model that fits the data better by merging modules. Pairs of
+modules are identified as candidates for merging if their between-module rho is higher
+than either of the within-module rhos by more than 2 * SD of the modules combined. This
+repeats until the model does not change or improve.
+}
+\details{
 Alternatively, pairs of modules can be offered as candidates for merging - in this
 instance there is not exploration and just the suggested pairs are tested. Pairs are
 offered as a list, where each element is a vector of two module numbers.
 }
+\keyword{internal}
