@@ -380,11 +380,6 @@ moduleLikelihoods <- function(all_modules, abs, N_sample, correction = "normal")
 EMMLi <- function(corr, N_sample, mod, saveAs = NULL, abs = TRUE, pprob = 0.05,
                   all_rhos = FALSE, correction = "normal"){
 
-  ########################################
-  #                                      #
-  #     CHECK INPUTS                     #
-  #                                      #
-  ########################################
   checkInput(corr, mod, N_sample, abs, pprob, saveAs)
 
   # Create null model

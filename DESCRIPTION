@@ -1,15 +1,18 @@
 Package: EMMLiv2
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Title: A Maximum Likelihood Approach to the Analysis of Modularity
+Version: 0.0.3
+Author: Anjali Goswami, Tim Lucas, Henry Ferguson-Gow, Prabu Sivasubramaniam, John Finarelli
+Maintainer: Tim Lucas <timcdlucas@gmail.com>, Henry Ferguson-Gow <h.ferguson-gow@ucl.ac.uk>
+Description: Fit models of modularity to morphological landmarks. Perform model 
+  selection on results. Fit models with a single within-module correlation or
+  with separate within-module correlations fitted to each module.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
+  stats,
+  utils,
   viridis,
   qgraph,
   ape,
