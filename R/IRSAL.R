@@ -14,6 +14,7 @@
 #' written out. Defaults to 1 (the first species in the dataset). 2 would be
 #' the second species in the dataset etc.
 #' @param ... Additonal arguments passed to \link[Morpho]{placePatch}
+#' @export
 
 IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write_out = FALSE,
                   sp = NULL, ...) {
@@ -24,7 +25,9 @@ IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write_out = FALSE,
   lms_dim <- dim(landmarks)
   org_dim <- dim(original)
   patch_idx <- (lms_dim[1] + 1):org_dim[1]
+  pb <- txtProgressBar(min = 0, max = reps, initial = 0)
   for (i in seq(reps)) {
+
     # Get patch points to sample from.
     # If first iteration, get them from start.
     if (i == 1) {
@@ -76,8 +79,9 @@ IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write_out = FALSE,
         sp <- sp
       }
       write.csv(t[,,sp], file = paste0("iteraion", i, ".csv"),
-                col.names = FALSE, row.names = FALSE)
+                row.names = FALSE)
     }
+    setTxtProgressBar(pb, i)
   }
   return(t)
 }
