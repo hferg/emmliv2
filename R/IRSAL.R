@@ -78,10 +78,12 @@ IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write_out = FALSE,
       } else {
         sp <- sp
       }
+      t <- t[match(ref_order$og, ref_order$new_order), , ]
       write.csv(t[,,sp], file = paste0("iteraion", i, ".csv"),
                 row.names = FALSE)
     }
     setTxtProgressBar(pb, i)
   }
+  t <- t[match(ref_order$og, ref_order$new_order), , ]
   return(t)
 }
