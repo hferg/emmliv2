@@ -57,7 +57,7 @@ IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write_out = FALSE,
 
     new_patch <- a_patch[samples * -1, ]
     new_lms <- rbind(a_lms, a_patch[samples, ])
-    new_fixed <- c(a_fixed, nrow(a_lms):(nrow(a_lms) + n))
+    new_fixed <- c(a_fixed, (nrow(a_lms) + 1):(nrow(a_lms) + n))
 
     new_atlas <- atlas
     new_atlas[["patch"]] <- new_patch
