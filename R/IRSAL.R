@@ -16,8 +16,28 @@
 #' @param ... Additonal arguments passed to \link[Morpho]{placePatch}
 #' @export
 
+#' New info: When estimated patch points are moved into landmarks they should
+#' stay there (I think?) and in such a way more points move over to fixed as
+#' the analysis progresses. Andre says he starts with 15% and ends up at around
+#' 90% - which implies that over 200 iterations some attempts must be rejected.
+#' It looks like he uses an estimate of bending energy to decide whether to
+#' keep or reject a subsample - that can be calculated during the sliding
+#' step of which normally takes place after this.
+#' the function that looks like it will get me there is slider3d
+#'
+
+# Take some points from the patch, add them to landmarks.
+# Project new patch using the new landmarks.
+# If bending energy is improved, take a slightly larger number of points, and
+# add them to the original landmarks (i.e. NOT the landmarks from the previous
+# step).
+# Repeat, increasing the number sampled slightly each time. It is this
+# increasing step that is important.
+
+
 IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write_out = FALSE,
                   sp = NULL, ...) {
+  # Get the initial starting point.
   start <- original <- Morpho::placePatch(atlas = atlas,
                                           dat.array = landmarks,
                                           keep.fix = initial_fixed,
@@ -26,14 +46,23 @@ IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write_out = FALSE,
   org_dim <- dim(original)
   patch_idx <- (lms_dim[1] + 1):org_dim[1]
   pb <- txtProgressBar(min = 0, max = reps, initial = 0)
+  # Make a series of percentage increases to go through.
+  pcs <- round(seq.int(from = 0.15, to = 0.90, length.out = reps), 2)
   for (i in seq(reps)) {
 
     # Get patch points to sample from.
     # If first iteration, get them from start.
     if (i == 1) {
+      # Extract the patch points to sample from, from the initial patching.
       pps <- start[patch_idx, , ]
+      # calculate initial bending energy.
+
     } else {
-      # Otherwise get them from t. First order according to patch_ref.
+      # Otherwise get the patch points to sample from from the patch from the
+      # previous iteration.
+      # I THINK that the ordering is not necesary in light of chatting to Andre
+      # since the patches are just added back onto the initial landmarks...
+      # First order according to patch_ref.
       # reorder t.
       t <- t[match(ref_order$og, ref_order$new_order), , ]
       pps <- t[patch_idx, , ]
