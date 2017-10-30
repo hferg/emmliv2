@@ -33,7 +33,13 @@
 # step).
 # Repeat, increasing the number sampled slightly each time. It is this
 # increasing step that is important.
-
+#
+# This also needs to be adapted to work through specimen by specimen - can't
+# do them all concurrently.
+#
+# ALthough... if I am not checking for improvements in bending energy I think
+# this just works across all species - or at least it will start working for
+# now.
 
 IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write_out = FALSE,
                   sp = NULL, ...) {
@@ -47,7 +53,7 @@ IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write_out = FALSE,
   patch_idx <- (lms_dim[1] + 1):org_dim[1]
   pb <- txtProgressBar(min = 0, max = reps, initial = 0)
   # Make a series of percentage increases to go through.
-  pcs <- round(seq.int(from = 0.15, to = 0.90, length.out = reps), 2)
+  pcs <- round(seq.int(from = 0.10, to = 0.90, length.out = reps), 2)
   for (i in seq(reps)) {
 
     # Get patch points to sample from.
@@ -68,26 +74,23 @@ IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write_out = FALSE,
       pps <- t[patch_idx, , ]
     }
 
-    samples <- sort(sample(1:dim(pps)[1], n))
+    samples <- sort(sample(1:dim(pps)[1], round(dim(pps)[1] * pcs[i], 0)))
 
-    # define the reference order for putting the "fixed" patches back where
-    # they belong.
-    ref_order <- data.frame(
-      og = c(1:org_dim[[1]]),
-      new_order = c(
-        c(1:lms_dim[[1]]),
-        (samples + lms_dim[[1]]),
-        c(patch_idx[!patch_idx %in% (samples + lms_dim[[1]])]))
-    )
-
+    # Take the relevant parts out of the atlas...
     a_patch <- atlas[["patch"]]
     a_lms <- atlas[["landmarks"]]
     a_fixed <- atlas[["keep.fix"]]
 
-    new_patch <- a_patch[samples * -1, ]
+    # Set up the new info. Pathces stays the same.
+    new_patch <- a_patch
+    # Landmarks have the sampled patches added to them.
+    # Landmarks should now be their original length + n.
     new_lms <- rbind(a_lms, a_patch[samples, ])
-    new_fixed <- c(a_fixed, (nrow(a_lms) + 1):(nrow(a_lms) + n))
+    # And the fixed points are defined
+    new_fixed <- c(a_fixed, (nrow(a_lms) + 1):(nrow(a_lms) + length(samples)))
 
+    # Now set up the new atlas. It's different because it has some new
+    # fixed points (patches moved to landmarks)
     new_atlas <- atlas
     new_atlas[["patch"]] <- new_patch
     new_atlas[["landmarks"]] <- new_lms
@@ -96,6 +99,7 @@ IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write_out = FALSE,
     # Now add the new 10 datapoints onto the original data...
     new_landmarks <- abind::abind(landmarks, pps[samples, , ], along = 1)
 
+    # Now place the new patches.
     t <- Morpho::placePatch(atlas = new_atlas,
                             dat.array = new_landmarks,
                             keep.fix = new_fixed,
