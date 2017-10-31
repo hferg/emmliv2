@@ -132,9 +132,9 @@ IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write_out = FALSE,
         f_lms <- (nrow(landmarks[,,j]) + 1):(nrow(landmarks[,,j]) +
                                                length(samples))
         tt <- t[-f_lms, ]
-
+        filename <- paste0("iteration_", i, "_", prefix, ".csv")
+        write.csv(tt, filename = filename)
       }
-
       setTxtProgressBar(pb, i)
     }
     # Remove anchor points (patched points that are now landmarks) and store
