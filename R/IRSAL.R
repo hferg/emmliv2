@@ -48,75 +48,100 @@ IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write_out = FALSE,
                                           dat.array = landmarks,
                                           keep.fix = initial_fixed,
                                           ...)
-  lms_dim <- dim(landmarks)
-  org_dim <- dim(original)
-  patch_idx <- (lms_dim[1] + 1):org_dim[1]
+
   pb <- txtProgressBar(min = 0, max = reps, initial = 0)
   # Make a series of percentage increases to go through.
   pcs <- round(seq.int(from = 0.10, to = 0.90, length.out = reps), 2)
-  for (i in seq(reps)) {
 
-    # Get patch points to sample from.
-    # If first iteration, get them from start.
-    if (i == 1) {
-      # Extract the patch points to sample from, from the initial patching.
-      pps <- start[patch_idx, , ]
-      # calculate initial bending energy.
+  res <- array(0, dim = dim(start))
+  # Larger loop to loop over specimens.
+  for (j in seq_leng(dim(landmarks)[3])) {
+    print("First specimen...")
+    for (i in seq(reps)) {
 
-    } else {
-      # Otherwise get the patch points to sample from from the patch from the
-      # previous iteration.
-      # I THINK that the ordering is not necesary in light of chatting to Andre
-      # since the patches are just added back onto the initial landmarks...
-      # First order according to patch_ref.
-      # reorder t.
-      t <- t[match(ref_order$og, ref_order$new_order), , ]
-      pps <- t[patch_idx, , ]
-    }
+      if (i == 1) {
+        # Extract the patch points to sample from, from the initial patching.
+        patch_idx <- (dim(landmarks)[1] + 1):dim(original)[1]
+        pps <- start[patch_idx, , j]
+        # calculate initial bending energy.
 
-    samples <- sort(sample(1:dim(pps)[1], round(dim(pps)[1] * pcs[i], 0)))
-
-    # Take the relevant parts out of the atlas...
-    a_patch <- atlas[["patch"]]
-    a_lms <- atlas[["landmarks"]]
-    a_fixed <- atlas[["keep.fix"]]
-
-    # Set up the new info. Pathces stays the same.
-    new_patch <- a_patch
-    # Landmarks have the sampled patches added to them.
-    # Landmarks should now be their original length + n.
-    new_lms <- rbind(a_lms, a_patch[samples, ])
-    # And the fixed points are defined
-    new_fixed <- c(a_fixed, (nrow(a_lms) + 1):(nrow(a_lms) + length(samples)))
-
-    # Now set up the new atlas. It's different because it has some new
-    # fixed points (patches moved to landmarks)
-    new_atlas <- atlas
-    new_atlas[["patch"]] <- new_patch
-    new_atlas[["landmarks"]] <- new_lms
-    new_atlas[["keep.fix"]] <- new_fixed
-
-    # Now add the new 10 datapoints onto the original data...
-    new_landmarks <- abind::abind(landmarks, pps[samples, , ], along = 1)
-
-    # Now place the new patches.
-    t <- Morpho::placePatch(atlas = new_atlas,
-                            dat.array = new_landmarks,
-                            keep.fix = new_fixed,
-                            ...)
-
-    if (write_out) {
-      if (is.null(sp)) {
-        sp <- 1
       } else {
-        sp <- sp
+        # Otherwise get the patch points to sample from from the patch from the
+        # previous iteration.
+        patch_idx <- (nrow(new_landmarks) + 1):nrow(t)
+        pps <- t[patch_idx, ]
       }
-      t <- t[match(ref_order$og, ref_order$new_order), , ]
-      write.csv(t[,,sp], file = paste0("iteraion", i, ".csv"),
-                row.names = FALSE)
+
+      samples <- sort(sample(1:dim(pps)[1], round(dim(pps)[1] * pcs[i], 0)))
+
+      # Take the relevant parts out of the atlas...
+      a_patch <- atlas[["patch"]]
+      a_lms <- atlas[["landmarks"]]
+      a_fixed <- atlas[["keep.fix"]]
+
+      # Set up the new info. Pathces stays the same.
+      new_patch <- a_patch
+      # Landmarks have the sampled patches added to them.
+      # Landmarks should now be their original length + n.
+      new_lms <- rbind(a_lms, a_patch[samples, ])
+      # And the fixed points are defined
+      new_fixed <- c(a_fixed, (nrow(a_lms) + 1):(nrow(a_lms) + length(samples)))
+
+      # Now set up the new atlas. It's different because it has some new
+      # fixed points (patches moved to landmarks)
+      new_atlas <- atlas
+      new_atlas[["patch"]] <- new_patch
+      new_atlas[["landmarks"]] <- new_lms
+      new_atlas[["keep.fix"]] <- new_fixed
+
+      # Now add the new 10 datapoints onto the original data...
+      new_landmarks <- abind::abind(landmarks[,,j], pps[samples, ], along = 1)
+      prefix <- dimnames(landmarks)[3][[1]][j]
+      # Now place the new patches.
+      # function version
+      # t <- Morpho::placePatch(atlas = new_atlas,
+      #                         dat.array = new_landmarks,
+      #                         keep.fix = new_fixed,
+      #                         prefix = prefix,
+      #                         ...)
+
+      # testing version
+      t <- Morpho::placePatch(atlas = new_atlas,
+                              dat.array = new_landmarks,
+                              keep.fix = new_fixed,
+                              path="./ply",
+                              prefix = prefix,
+                              fileext = ".ply",
+                              ray = TRUE,
+                              inflate=2,
+                              tol=5,
+                              relax.patch = FALSE,
+                              rhotol = NULL,
+                              silent = FALSE,
+                              mc.cores = 1)
+
+      # calculate bending energy matrix...
+      # This is from inside slider3d - find out what stepsize and m are...
+      # This needs to be compared to the bending energy of the previous iteration
+      # in some way...
+      # L <- CreateL(t, output = "Lsubk3")
+      # dataslido <- calcGamma(U$Gamma0, L$Lsubk3, U$U,
+      #                        dims = m, stepsize = stepsize)
+
+      if (write.out) {
+        f_lms <- (nrow(landmarks[,,j]) + 1):(nrow(landmarks[,,j]) +
+                                               length(samples))
+        tt <- t[-f_lms, ]
+
+      }
+
+      setTxtProgressBar(pb, i)
     }
-    setTxtProgressBar(pb, i)
+    # Remove anchor points (patched points that are now landmarks) and store
+    # result.
+    f_lms <- (nrow(landmarks[,,j]) + 1):(nrow(landmarks[,,j]) + length(samples))
+    t <- t[-f_lms, ]
+    res[, , j] <- t
   }
-  t <- t[match(ref_order$og, ref_order$new_order), , ]
-  return(t)
+  return(res)
 }
