@@ -8,40 +8,17 @@
 #' \link[Morpho]{placePatch} analysis.
 #' @param n The number of patched points to use in each iteration of IRSAL.
 #' @param reps The number of times to repeat the IRSAL procedure.
-#' @param write_out If TRUE then the landmarks for the first species each
-#' iteration will be written to the working directory.
+#' @param write.out If TRUE then the patched points from each iteration, for
+#' each species, will be written to the working directory. This will NOT include
+#' the temporary anchor points.
 #' @param sp If write.out is true, then this determines which species is
 #' written out. Defaults to 1 (the first species in the dataset). 2 would be
 #' the second species in the dataset etc.
 #' @param ... Additonal arguments passed to \link[Morpho]{placePatch}
+#' @name IRSAL
 #' @export
 
-#' New info: When estimated patch points are moved into landmarks they should
-#' stay there (I think?) and in such a way more points move over to fixed as
-#' the analysis progresses. Andre says he starts with 15% and ends up at around
-#' 90% - which implies that over 200 iterations some attempts must be rejected.
-#' It looks like he uses an estimate of bending energy to decide whether to
-#' keep or reject a subsample - that can be calculated during the sliding
-#' step of which normally takes place after this.
-#' the function that looks like it will get me there is slider3d
-#'
-
-# Take some points from the patch, add them to landmarks.
-# Project new patch using the new landmarks.
-# If bending energy is improved, take a slightly larger number of points, and
-# add them to the original landmarks (i.e. NOT the landmarks from the previous
-# step).
-# Repeat, increasing the number sampled slightly each time. It is this
-# increasing step that is important.
-#
-# This also needs to be adapted to work through specimen by specimen - can't
-# do them all concurrently.
-#
-# ALthough... if I am not checking for improvements in bending energy I think
-# this just works across all species - or at least it will start working for
-# now.
-
-IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write_out = FALSE,
+IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write.out = FALSE,
                   sp = NULL, ...) {
   # Get the initial starting point.
   start <- original <- Morpho::placePatch(atlas = atlas,
@@ -55,8 +32,8 @@ IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write_out = FALSE,
 
   res <- array(0, dim = dim(start))
   # Larger loop to loop over specimens.
-  for (j in seq_leng(dim(landmarks)[3])) {
-    print("First specimen...")
+  for (j in seq_len(dim(landmarks)[3])) {
+    print(paste0("Specimen ", j))
     for (i in seq(reps)) {
 
       if (i == 1) {
@@ -133,7 +110,7 @@ IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write_out = FALSE,
                                                length(samples))
         tt <- t[-f_lms, ]
         filename <- paste0("iteration_", i, "_", prefix, ".csv")
-        write.csv(tt, filename = filename)
+        write.csv(tt, file = filename, row.names = FALSE)
       }
       setTxtProgressBar(pb, i)
     }

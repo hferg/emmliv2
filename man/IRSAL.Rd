@@ -4,7 +4,7 @@
 \alias{IRSAL}
 \title{IRSAL}
 \usage{
-IRSAL(atlas, landmarks, initial_fixed, n, reps, write_out = FALSE,
+IRSAL(atlas, landmarks, initial_fixed, n, reps, write.out = FALSE,
   sp = NULL, ...)
 }
 \arguments{
@@ -20,8 +20,9 @@ or a matrix in case of only one target specimen.}
 
 \item{reps}{The number of times to repeat the IRSAL procedure.}
 
-\item{write_out}{If TRUE then the landmarks for the first species each
-iteration will be written to the working directory.}
+\item{write.out}{If TRUE then the patched points from each iteration, for
+each species, will be written to the working directory. This will NOT include
+the temporary anchor points.}
 
 \item{sp}{If write.out is true, then this determines which species is
 written out. Defaults to 1 (the first species in the dataset). 2 would be
