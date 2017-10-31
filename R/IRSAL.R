@@ -24,6 +24,7 @@ IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write.out = FALSE,
   start <- original <- Morpho::placePatch(atlas = atlas,
                                           dat.array = landmarks,
                                           keep.fix = initial_fixed,
+                                          silent = TRUE,
                                           ...)
 
   pb <- txtProgressBar(min = 0, max = reps, initial = 0)
@@ -41,7 +42,7 @@ IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write.out = FALSE,
         patch_idx <- (dim(landmarks)[1] + 1):dim(original)[1]
         pps <- start[patch_idx, , j]
         # calculate initial bending energy.
-
+        #be <- CreateL()
       } else {
         # Otherwise get the patch points to sample from from the patch from the
         # previous iteration.
@@ -76,26 +77,12 @@ IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write.out = FALSE,
       prefix <- dimnames(landmarks)[3][[1]][j]
       # Now place the new patches.
       # function version
-      # t <- Morpho::placePatch(atlas = new_atlas,
-      #                         dat.array = new_landmarks,
-      #                         keep.fix = new_fixed,
-      #                         prefix = prefix,
-      #                         ...)
-
-      # testing version
       t <- Morpho::placePatch(atlas = new_atlas,
                               dat.array = new_landmarks,
                               keep.fix = new_fixed,
-                              path="./ply",
                               prefix = prefix,
-                              fileext = ".ply",
-                              ray = TRUE,
-                              inflate=2,
-                              tol=5,
-                              relax.patch = FALSE,
-                              rhotol = NULL,
-                              silent = FALSE,
-                              mc.cores = 1)
+                              silent = TRUE,
+                              ...)
 
       # calculate bending energy matrix...
       # This is from inside slider3d - find out what stepsize and m are...
