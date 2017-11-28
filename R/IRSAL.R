@@ -46,8 +46,6 @@ IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write.out = FALSE,
         # If it's the first iteration, calculate bending energy relative to
         # the template. Otherwise the bending energy from the previous iteration
         # is used.
-        #
-        # IRSAL DEV
         template <- rbind(atlas[["landmarks"]], atlas[["patch"]])
         L_int <- CreateL(template)
         be_p <- t(start[,,j]) %*% L_int$Lsubk %*% start[,,j] %>%
