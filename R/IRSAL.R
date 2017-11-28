@@ -51,6 +51,7 @@ IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write.out = FALSE,
       diag %>%
       sum
     failure <- 0
+    i <- 1
     repeat {
 
       patch_idx <- (dim(landmarks)[1] + 1):dim(original)[1]
