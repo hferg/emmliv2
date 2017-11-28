@@ -113,6 +113,7 @@ IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write.out = FALSE,
         be_p <- be_n
         # Increment i
         i <- i + 1
+        failure <- 0
         # Then check if it equals reps + 1 (which means it has fully gone
         # through all the sample percentages).
         if (i == (reps + 1)) {
