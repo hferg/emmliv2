@@ -36,27 +36,23 @@ IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write.out = FALSE,
   res <- array(0, dim = dim(start))
   dimnames(res) <- dimnames(start)
 
+  # Calculate the bending energy for the template to reference against.
+  template <- rbind(atlas[["landmarks"]], atlas[["patch"]])
+  L_int <- CreateL(template)
+
   for (j in seq_len(dim(landmarks)[3])) {
     prefix <- dimnames(landmarks)[[3]][j]
     print(paste0("Specimen ", j, ":", prefix))
     t <- start[,,j]
-    for (i in seq(reps)) {
 
-      if (i == 1) {
-        # If it's the first iteration, calculate bending energy relative to
-        # the template. Otherwise the bending energy from the previous iteration
-        # is used.
-        template <- rbind(atlas[["landmarks"]], atlas[["patch"]])
-        L_int <- CreateL(template)
-        be_p <- t(t) %*% L_int$Lsubk %*% t %>%
-                as.matrix %>%
-                diag %>%
-                sum
-      }
+    # calculate initial bending energy
+    be_p <- t(t) %*% L_int$Lsubk %*% t %>%
+    as.matrix %>%
+      diag %>%
+      sum
+    failure <- 0
+    repeat {
 
-      # Since when bending energy is tested the extra landmarks are removed,
-      # the original dimentions of the landmarks are sufficient to determine
-      # where the patches are in a new t (i.e. they are always the same)
       patch_idx <- (dim(landmarks)[1] + 1):dim(original)[1]
       pps <- t[patch_idx, ]
 
@@ -110,17 +106,37 @@ IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write.out = FALSE,
       # energy previous), t becomes t_test (the new patches, with the false
       # anchor points removed), and be_p becomes be_n.
       if (be_n < be_p) {
+        print("Better")
         t <- t_test
         be_p <- be_n
+        i <- i + 1
+
+        if (1 == reps) {
+          break
+        }
+
+      } else if (be_n == be_p) {
+        print("Equal")
+        failure <- failure + 1
+        if (failure == 100) {
+          print("No resolution")
+          break
+        }
+      } else {
+        failure <- failure + 1
+        if (failure == 100) {
+          print("No resolution")
+          break
+        }
       }
 
-      if (write.out) {
-        f_lms <- (nrow(landmarks[,,j]) + 1):(nrow(landmarks[,,j]) +
-                                               length(samples))
-        tt <- t[-f_lms, ]
-        filename <- paste0("iteration_", i, "_", prefix, ".csv")
-        write.csv(tt, file = filename, row.names = FALSE)
-      }
+      # if (write.out) {
+      #   f_lms <- (nrow(landmarks[,,j]) + 1):(nrow(landmarks[,,j]) +
+      #                                          length(samples))
+      #   tt <- t[-f_lms, ]
+      #   filename <- paste0("iteration_", i, "_", prefix, ".csv")
+      #   write.csv(tt, file = filename, row.names = FALSE)
+      # }
     }
     # Remove anchor points (patched points that are now landmarks) and store
     # result. At this point t will be the patch that has the lowest bending
