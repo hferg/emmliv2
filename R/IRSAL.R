@@ -112,7 +112,7 @@ IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write.out = FALSE,
         be_p <- be_n
         i <- i + 1
 
-        if (1 == reps) {
+        if (i == reps) {
           break
         }
 
