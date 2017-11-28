@@ -108,12 +108,11 @@ IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write.out = FALSE,
       # energy previous), t becomes t_test (the new patches, with the false
       # anchor points removed), and be_p becomes be_n.
       if (be_n < be_p) {
-        print("Better")
+        print(paste0("Bending energy improved at rep ", i))
         t <- t_test
         be_p <- be_n
         # Increment i
         i <- i + 1
-        print(i)
         # Then check if it equals reps + 1 (which means it has fully gone
         # through all the sample percentages).
         if (i == (reps + 1)) {
@@ -124,7 +123,8 @@ IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write.out = FALSE,
         failure <- failure + 1
 
         if (failure == maxit) {
-          print("No resolution")
+          print(paste0("No resolution at rep ", i, " after ", maxit,
+                       " attempts."))
           break
         }
 
@@ -137,6 +137,7 @@ IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write.out = FALSE,
     # if bending energy was never reduced, OR it will be a t_test (that has
     # had the IRSAL landmarks removed in order to compare bending energy) that
     # had a lower bending energy. Pop that patch into the overall results...
+    print("Storing best patch.")
     res[, , j] <- t
   }
   return(res)

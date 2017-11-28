@@ -5,7 +5,7 @@
 \title{IRSAL}
 \usage{
 IRSAL(atlas, landmarks, initial_fixed, n, reps, write.out = FALSE,
-  sp = NULL, maxit, ...)
+  sp = NULL, maxit = 50, ...)
 }
 \arguments{
 \item{atlas}{object of class "atlas" created by \link[Morpho]{createAtlas}}
