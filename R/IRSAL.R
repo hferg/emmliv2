@@ -48,7 +48,7 @@ IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write.out = FALSE,
         # is used.
         template <- rbind(atlas[["landmarks"]], atlas[["patch"]])
         L_int <- CreateL(template)
-        be_p <- t(start[,,j]) %*% L_int$Lsubk %*% start[,,j] %>%
+        be_p <- t(t) %*% L_int$Lsubk %*% t %>%
                 as.matrix %>%
                 diag %>%
                 sum
@@ -101,8 +101,7 @@ IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write.out = FALSE,
 
       # Then compare the bending energy. Then compare this to the bending
       # energy of the last iteration (be_p)
-      L <- CreateL(t_test)
-      be_n <- t(t) %*% L$Lsubk %*% t %>%
+      be_n <- t(t) %*% L_int$Lsubk %*% t %>%
               as.matrix %>%
               diag %>%
               sum
