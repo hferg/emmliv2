@@ -29,6 +29,8 @@ written out. Defaults to 1 (the first species in the dataset). 2 would be
 the second species in the dataset etc.}
 
 \item{...}{Additonal arguments passed to \link[Morpho]{placePatch}}
+
+\item{maxit}{The maximum number of attempts to find improved bending energy.}
 }
 \description{
 IRSAL

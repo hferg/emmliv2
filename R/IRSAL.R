@@ -14,6 +14,7 @@
 #' @param sp If write.out is true, then this determines which species is
 #' written out. Defaults to 1 (the first species in the dataset). 2 would be
 #' the second species in the dataset etc.
+#' @param maxit The maximum number of attempts to find improved bending energy.
 #' @param ... Additonal arguments passed to \link[Morpho]{placePatch}
 #' @importFrom magrittr %>%
 #' @name IRSAL
@@ -110,34 +111,24 @@ IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write.out = FALSE,
         print("Better")
         t <- t_test
         be_p <- be_n
+        # Increment i
         i <- i + 1
-
-        if (i == reps) {
+        print(i)
+        # Then check if it equals reps + 1 (which means it has fully gone
+        # through all the sample percentages).
+        if (i == (reps + 1)) {
           break
         }
 
-      } else if (be_n == be_p) {
-        print("Equal")
-        failure <- failure + 1
-        if (failure == 100) {
-          print("No resolution")
-          break
-        }
       } else {
         failure <- failure + 1
-        if (failure == 100) {
+
+        if (failure == maxit) {
           print("No resolution")
           break
         }
-      }
 
-      # if (write.out) {
-      #   f_lms <- (nrow(landmarks[,,j]) + 1):(nrow(landmarks[,,j]) +
-      #                                          length(samples))
-      #   tt <- t[-f_lms, ]
-      #   filename <- paste0("iteration_", i, "_", prefix, ".csv")
-      #   write.csv(tt, file = filename, row.names = FALSE)
-      # }
+      }
     }
     # Remove anchor points (patched points that are now landmarks) and store
     # result. At this point t will be the patch that has the lowest bending
