@@ -97,7 +97,7 @@ IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write.out = FALSE,
 
       # Then compare the bending energy. Then compare this to the bending
       # energy of the last iteration (be_p)
-      be_n <- t(t) %*% L_int$Lsubk %*% t %>%
+      be_n <- t(t_test) %*% L_int$Lsubk %*% t_test %>%
               as.matrix %>%
               diag %>%
               sum
