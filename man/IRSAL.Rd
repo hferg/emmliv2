@@ -5,7 +5,7 @@
 \title{IRSAL}
 \usage{
 IRSAL(atlas, landmarks, initial_fixed, n, reps, write.out = FALSE,
-  sp = NULL, ...)
+  sp = NULL, maxit, ...)
 }
 \arguments{
 \item{atlas}{object of class "atlas" created by \link[Morpho]{createAtlas}}
@@ -28,9 +28,9 @@ the temporary anchor points.}
 written out. Defaults to 1 (the first species in the dataset). 2 would be
 the second species in the dataset etc.}
 
-\item{...}{Additonal arguments passed to \link[Morpho]{placePatch}}
-
 \item{maxit}{The maximum number of attempts to find improved bending energy.}
+
+\item{...}{Additonal arguments passed to \link[Morpho]{placePatch}}
 }
 \description{
 IRSAL

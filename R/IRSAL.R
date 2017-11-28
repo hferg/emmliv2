@@ -21,7 +21,7 @@
 #' @export
 
 IRSAL <- function(atlas, landmarks, initial_fixed, n, reps, write.out = FALSE,
-                  sp = NULL, ...) {
+                  sp = NULL, maxit, ...) {
 
   # Place patches to get a starting point for each specimen.
   print("Initial patching...")
